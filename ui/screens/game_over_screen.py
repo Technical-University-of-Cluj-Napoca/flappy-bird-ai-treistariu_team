@@ -5,33 +5,34 @@ from core.game_state import Screen, GameMode
 
 
 class GameOverScreen(BaseScreen):
-
     def __init__(self, game_state, audio_manager):
         super().__init__(game_state)
         self.audio_manager = audio_manager
-
 
         self.title_font = pygame.font.SysFont(None, 48)
         self.text_font = pygame.font.SysFont(None, 28)
         self.button_font = pygame.font.SysFont(None, 30)
 
         self.menu_rect = pygame.Rect(200, 450, 200, 50)
-
         self.replay_rect = pygame.Rect(200, 320, 200, 50)
         self.share_rect = pygame.Rect(200, 390, 200, 50)
+
+    def on_enter(self):
+        # Stop music (optional)
+        self.audio_manager.stop_music()
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.replay_rect.collidepoint(event.pos):
                 # restart same mode
                 self.game_state.reset_run()
-                self.game_state.next_screen = Screen.PLAYING
+                self.game_state.next_screen = Screen.PLAYING  # matches main.py registration :contentReference[oaicite:6]{index=6}
 
             elif self.share_rect.collidepoint(event.pos):
                 print("Share button clicked (optional feature)")
+
             elif self.menu_rect.collidepoint(event.pos):
                 self.game_state.next_screen = Screen.TITLE
-
 
     def update(self, dt):
         pass
@@ -50,14 +51,8 @@ class GameOverScreen(BaseScreen):
         surface.blit(score_text, (230, 160))
 
         # Best score (mode dependent)
-        if self.game_state.game_mode == GameMode.MANUAL:
-            best = self.game_state.best_manual
-        else:
-            best = self.game_state.best_auto
-
-        best_text = self.text_font.render(
-            f"Best: {best}", True, (0, 0, 0)
-        )
+        best = self.game_state.best_manual if self.game_state.game_mode == GameMode.MANUAL else self.game_state.best_auto
+        best_text = self.text_font.render(f"Best: {best}", True, (0, 0, 0))
         surface.blit(best_text, (240, 200))
 
         # Replay button
@@ -70,9 +65,7 @@ class GameOverScreen(BaseScreen):
         share_text = self.button_font.render("Share", True, (0, 0, 0))
         surface.blit(share_text, (270, 405))
 
+        # Menu button
         pygame.draw.rect(surface, (180, 180, 180), self.menu_rect)
         menu_text = self.button_font.render("Main Menu", True, (0, 0, 0))
         surface.blit(menu_text, (240, 465))
-
-def on_enter(self):
-    self.audio_manager.stop_music()
